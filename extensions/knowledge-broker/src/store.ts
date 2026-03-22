@@ -104,7 +104,7 @@ export class SharedKnowledgeStore {
     const facts = store.facts
       .filter((f) => {
         if (now - f.timestamp > f.ttl) return false;
-        if (now - f.timestamp > maxAge) return false;
+        if (now - f.timestamp >= maxAge) return false;
         if (opts.excludeSessionKey && f.sessionKey === opts.excludeSessionKey)
           return false;
         if (opts.categories && !opts.categories.includes(f.category))
