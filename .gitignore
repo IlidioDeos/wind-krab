@@ -1,0 +1,34 @@
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── TypeScript build output ───────────────────────────────────────────────────
+extensions/knowledge-broker/dist/
+
+# ── Test coverage ─────────────────────────────────────────────────────────────
+coverage/
+extensions/knowledge-broker/coverage/
+
+# ── OpenClaw runtime data (local dev) ────────────────────────────────────────
+# These are generated at runtime — not part of the source
+*.openclaw/
+shared-knowledge.json
+*.jsonl
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# Named volumes are managed by Docker, not Git
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo

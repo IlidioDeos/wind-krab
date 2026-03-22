@@ -1,0 +1,55 @@
+{
+  "id": "knowledge-broker",
+  "name": "Cross-Session Knowledge Broker",
+  "version": "1.0.0",
+  "description": "Propagates relevant facts between sessions across all channels in near real-time. Zero external dependencies — facts are stored in a shared JSON file on disk.",
+  "main": "index.js",
+  "author": "Ilidio",
+  "keywords": ["memory", "sync", "cross-session", "knowledge", "multi-channel"],
+  "engines": {
+    "openclaw": ">=2026.1.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "storePath": {
+        "type": "string",
+        "description": "Absolute path to the shared knowledge JSON store"
+      },
+      "maxFacts": {
+        "type": "number",
+        "description": "Maximum number of facts to keep in the store"
+      },
+      "ttl": {
+        "type": "object",
+        "description": "Time-to-live per category in milliseconds",
+        "properties": {
+          "scheduling": { "type": "number" },
+          "preference":  { "type": "number" },
+          "contact":     { "type": "number" },
+          "project":     { "type": "number" },
+          "task":        { "type": "number" },
+          "fact":        { "type": "number" }
+        },
+        "additionalProperties": false
+      },
+      "conflictWindowMs": {
+        "type": "number",
+        "description": "Time window (ms) in which two contradictory facts are marked as conflicted"
+      },
+      "extractionEnabled": {
+        "type": "boolean",
+        "description": "Use a fast LLM call for fact extraction (more accurate, small cost)"
+      },
+      "injectionMaxFacts": {
+        "type": "number",
+        "description": "Maximum number of facts to inject per session turn"
+      },
+      "injectionMaxAge": {
+        "type": "number",
+        "description": "Maximum age (ms) of facts to inject into context"
+      }
+    },
+    "additionalProperties": false
+  }
+}

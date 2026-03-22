@@ -1,0 +1,60 @@
+{
+  // OpenClaw configuration for the knowledge-broker demo
+  // Docs: https://docs.openclaw.ai
+
+  "gateway": {
+    // Required to start in a container / local environment without onboarding wizard
+    "mode": "local"
+  },
+
+  "agents": {
+    "defaults": {
+      "model": {
+        // Using OpenRouter as the LLM gateway.
+        // Format: openrouter/<model-id>  — use any model available at openrouter.ai/models
+        "primary": "openrouter/anthropic/claude-haiku-4.5"
+      }
+    }
+  },
+
+  "plugins": {
+    "enabled": true,
+    "allow": ["knowledge-broker"],
+    "load": {
+      // Path to the plugin package root (where package.json lives)
+      "paths": ["/home/node/.openclaw/extensions/knowledge-broker"]
+    },
+    "entries": {
+      "knowledge-broker": {
+        "enabled": true,
+        "config": {
+          // Path to the shared knowledge store (accessible by all sessions)
+          "storePath": "/home/node/.openclaw/shared-knowledge.json",
+          // Max total facts to keep in the store
+          "maxFacts": 200,
+          // TTL per category (milliseconds)
+          "ttl": {
+            "scheduling": 86400000,
+            "preference": 604800000,
+            "contact":    2592000000,
+            "project":    604800000,
+            "task":       86400000,
+            "fact":       86400000
+          },
+          // Conflict window: facts updated within this window are marked conflicted
+          "conflictWindowMs": 300000,
+          // Set to true to use a fast LLM call for extraction (more accurate, tiny cost)
+          "extractionEnabled": false,
+          // How many facts to inject per turn
+          "injectionMaxFacts": 10,
+          // Only inject facts newer than this (ms)
+          "injectionMaxAge": 86400000
+        }
+      },
+      // Keep the built-in memory plugin active alongside our broker
+      "memory-core": {
+        "enabled": true
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  unit-tests:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/knowledge-broker/package-lock.json
+
+      - name: Install dependencies
+        working-directory: extensions/knowledge-broker
+        run: npm ci
+
+      - name: Type check
+        working-directory: extensions/knowledge-broker
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: extensions/knowledge-broker
+        run: npm test
+
+  build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t knowledge-broker-test .

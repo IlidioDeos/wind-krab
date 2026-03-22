@@ -1,0 +1,38 @@
+services:
+  openclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openclaw-kb
+    restart: unless-stopped
+    ports:
+      - "18789:18789"   # Gateway WebSocket / HTTP API
+      - "18790:18790"   # Bridge port
+    volumes:
+      # Persist agent state, sessions, and memory across restarts
+      # OpenClaw runs as the "node" user — home is /home/node, not /root
+      - openclaw-data:/home/node/.openclaw
+      # Hot-reload the plugin without rebuilding the image
+      - ./extensions/knowledge-broker/dist:/home/node/.openclaw/extensions/knowledge-broker/dist:ro
+      - ./extensions/knowledge-broker/package.json:/home/node/.openclaw/extensions/knowledge-broker/package.json:ro
+      # Skill hot-reload — mounted into /app/skills where OpenClaw discovers skills at startup
+      - ./skills/cross-session-sync:/app/skills/cross-session-sync:ro
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-dev-token-change-me}
+      - OPENCLAW_TZ=${TZ:-UTC}
+      # ── Telegram (optional) ──────────────────────────────────────────────
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      # ── Slack (optional) ─────────────────────────────────────────────────
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN:-}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:18789/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  openclaw-data:
+    driver: local

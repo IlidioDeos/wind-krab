@@ -1,0 +1,51 @@
+name: OpenClaw Compatibility
+
+on:
+  schedule:
+    # Run weekly on Mondays to catch upstream breakage early
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  compat:
+    name: Test against OpenClaw ${{ matrix.openclaw-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        openclaw-version: ['2026.1.0', '2026.2.0', '2026.3.0', 'latest']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/knowledge-broker/package-lock.json
+
+      - name: Install dependencies
+        working-directory: extensions/knowledge-broker
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: extensions/knowledge-broker
+        run: npm test
+
+      - name: Build plugin
+        working-directory: extensions/knowledge-broker
+        run: npm run build
+
+      - name: Build Docker image with specific OpenClaw version
+        run: |
+          docker build \
+            --build-arg OPENCLAW_VERSION=${{ matrix.openclaw-version }} \
+            -t knowledge-broker-compat-${{ matrix.openclaw-version }} .
+        continue-on-error: true
+
+      - name: Report compatibility
+        if: failure()
+        run: |
+          echo "::warning::Compatibility issue detected with OpenClaw ${{ matrix.openclaw-version }}"
+          echo "Check the build logs above for details."
